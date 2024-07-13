@@ -7,14 +7,14 @@ const ctx = canvas.getContext("2d");
 function hitSphere(center, radius, r) {
     const oc = center.sub(r.origin);
     const a = r.direction.lengthSquared();
-    const b = -2.0 * r.direction.dot(oc);
+    const h = r.direction.dot(oc);
     const c = oc.lengthSquared() - radius*radius;
-    const discriminant = b*b - 4*a*c;
+    const discriminant = h*h - a*c;
 
     if (discriminant < 0) {
         return -1;
     } else {
-        return (-b - Math.sqrt(discriminant)) / (2*a);
+        return (h - Math.sqrt(discriminant)) / a;
     }
 }
 
