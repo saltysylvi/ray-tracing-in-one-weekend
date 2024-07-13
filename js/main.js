@@ -1,28 +1,14 @@
 import {Vec3, Point3, Color, writeColor} from './vec3.js';
 import {Ray} from './ray.js';
+import {HitRecord, Sphere, HittableList} from './hittable.js';
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-function hitSphere(center, radius, r) {
-    const oc = center.sub(r.origin);
-    const a = r.direction.lengthSquared();
-    const h = r.direction.dot(oc);
-    const c = oc.lengthSquared() - radius*radius;
-    const discriminant = h*h - a*c;
-
-    if (discriminant < 0) {
-        return -1;
-    } else {
-        return (h - Math.sqrt(discriminant)) / a;
-    }
-}
-
-function rayColor(r) {
-    const t = hitSphere(new Point3(0,0,-1), 0.5, r);
-    if (t > 0) {
-        const N = r.at(t).sub(new Vec3(0, 0, -1)).normalize();
-        return N.add(1).div(2);
+function rayColor(r, world) {
+    const rec = new HitRecord(null, null, null);
+    if (world.hit(r, 0, Infinity, rec)) {
+        return rec.normal.add(1).div(2);
     }
 
     const unitDirection = r.direction.normalize();
@@ -37,6 +23,12 @@ canvas.width = 400;
 
 // Calculate canvas height and ensure that it's at least 1.
 canvas.height = Math.max(1, Math.floor(canvas.width / aspectRatio));
+
+// World
+
+const world = new HittableList([]);
+world.add(new Sphere(new Point3(0, 0, -1), 0.5));
+world.add(new Sphere(new Point3(0, -100.5, -1), 100));
 
 // Camera
 
@@ -66,7 +58,7 @@ for (let j = 0; j < canvas.height; j++) {
         const rayDirection = pixelCenter.sub(cameraCenter);
         const r = new Ray(cameraCenter, rayDirection);
 
-        const pixelColor = rayColor(r);
+        const pixelColor = rayColor(r, world);
         writeColor(pixelColor, ctx, i, j);
     }
 }
