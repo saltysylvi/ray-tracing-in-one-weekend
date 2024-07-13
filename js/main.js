@@ -10,12 +10,20 @@ function hitSphere(center, radius, r) {
     const b = -2.0 * r.direction.dot(oc);
     const c = oc.lengthSquared() - radius*radius;
     const discriminant = b*b - 4*a*c;
-    return discriminant >= 0;
+
+    if (discriminant < 0) {
+        return -1;
+    } else {
+        return (-b - Math.sqrt(discriminant)) / (2*a);
+    }
 }
 
 function rayColor(r) {
-    if (hitSphere(new Point3(0,0,-1), 0.5, r))
-        return new Color(1, 0, 0);
+    const t = hitSphere(new Point3(0,0,-1), 0.5, r);
+    if (t > 0) {
+        const N = r.at(t).sub(new Vec3(0, 0, -1)).normalize();
+        return N.add(1).div(2);
+    }
 
     const unitDirection = r.direction.normalize();
     const a = 0.5 * (unitDirection.y + 1); 
