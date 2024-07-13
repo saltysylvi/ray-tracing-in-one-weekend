@@ -1,20 +1,53 @@
-import {Vec3, Color} from './vec3.js';
+import {Vec3, Point3, Color, writeColor} from './vec3.js';
+import {Ray} from './ray.js';
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+function rayColor(r) {
+    const unitDirection = r.direction.normalize();
+    const a = 0.5 * (unitDirection.y + 1); 
+    return (new Color(1, 1, 1)).mul(1 - a).add((new Color(0.5, 0.7, 1)).mul(a));
+}
+
 // Image
 
-canvas.width = 256;
-canvas.height = 256;
+const aspectRatio = 16 / 9;
+canvas.width = 400;
+
+// Calculate canvas height and ensure that it's at least 1.
+canvas.height = Math.max(1, Math.floor(canvas.width / aspectRatio));
+
+// Camera
+
+const focalLength = 1.0;
+const viewportHeight = 2.0;
+const viewportWidth = viewportHeight * canvas.width / canvas.height;
+const cameraCenter = new Point3(0, 0, 0);
+
+// Calculate the vectors across the horizontal and down the vertical viewport edges.
+const viewportU = new Vec3(viewportWidth, 0, 0);
+const viewportV = new Vec3(0, -viewportHeight, 0);
+
+// Calculate the horizontal and vertical delta vectors from pixel to pixel.
+const pixelDeltaU = viewportU.div(canvas.width);
+const pixelDeltaV = viewportV.div(canvas.height);
+
+// Calculate the location of the upper left pixel.
+const viewportUpperLeft = cameraCenter.sub(new Vec3(0, 0, focalLength)).sub(viewportU.div(2)).sub(viewportV.div(2));
+const pixel00Loc = viewportUpperLeft.add(pixelDeltaU.add(pixelDeltaV).div(2));
 
 // Render
 
 for (let j = 0; j < canvas.height; j++) {
     console.log(`Scanlines remaining: ${canvas.height-j}`);
     for (let i = 0; i < canvas.width; i++) {
-        const pixelColor = new Color(i / (canvas.width-1), j / (canvas.height-1), 0);
-        pixelColor.writeColor(ctx, i, j);
+        const pixelCenter = pixel00Loc.add(pixelDeltaU.mul(i)).add(pixelDeltaV.mul(j));
+        const rayDirection = pixelCenter.sub(cameraCenter);
+        const r = new Ray(cameraCenter, rayDirection);
+
+        const pixelColor = rayColor(r);
+        writeColor(pixelColor, ctx, i, j);
     }
 }
 

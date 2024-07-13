@@ -1,4 +1,4 @@
-export {Vec3, Color}
+export {Vec3, Point3, Color, writeColor}
 
 class Vec3 {
 
@@ -70,19 +70,18 @@ class Vec3 {
     }
 }
 
-class Color extends Vec3 {
+// class synonym for Vec3, to be thought of as a point instead of an arrow
+const Point3 = Vec3;
 
-    constructor(r, g, b) {
-        super(r, g, b);
-    }
+// class synonym for Vec3, to be thought of rgb color space
+const Color = Vec3;
 
-    // writes this color to canvas with context ctx at pixel (x,y)
-    writeColor(ctx, x, y) {
-        const r = Math.floor(255.999 * this.x);
-        const g = Math.floor(255.999 * this.y);
-        const b = Math.floor(255.999 * this.z);
+// writes color to canvas with context ctx at pixel (x,y)
+function writeColor(color, ctx, x, y) {
+    const r = Math.floor(255.999 * color.x);
+    const g = Math.floor(255.999 * color.y);
+    const b = Math.floor(255.999 * color.z);
 
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(x, y, 1, 1);
-    }
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(x, y, 1, 1);
 }
