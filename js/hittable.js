@@ -60,7 +60,7 @@ class Sphere {
 class HittableList {
 
     constructor(objects) {
-        this.objects = objects;
+        this.objects = objects || [];
     }
 
     add(object) {
@@ -72,7 +72,7 @@ class HittableList {
     }
 
     hit(r, tmin, tmax, rec) {
-        const tempRec = new HitRecord(null, null, null);
+        const tempRec = new HitRecord();
         let hitAnything = false;
         let closestSoFar = tmax;
         

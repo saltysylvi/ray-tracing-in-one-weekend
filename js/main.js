@@ -6,7 +6,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 function rayColor(r, world) {
-    const rec = new HitRecord(null, null, null);
+    const rec = new HitRecord();
     if (world.hit(r, 0, Infinity, rec)) {
         return rec.normal.add(1).div(2);
     }
@@ -26,7 +26,7 @@ canvas.height = Math.max(1, Math.floor(canvas.width / aspectRatio));
 
 // World
 
-const world = new HittableList([]);
+const world = new HittableList();
 world.add(new Sphere(new Point3(0, 0, -1), 0.5));
 world.add(new Sphere(new Point3(0, -100.5, -1), 100));
 
