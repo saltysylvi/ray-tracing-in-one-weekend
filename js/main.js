@@ -11,6 +11,7 @@ function drawPixel(x, y, r, g, b) {
 }
 
 for (let j = 0; j < canvas.height; j++) {
+    console.log(`Scanlines remaining: ${canvas.height-j}`);
     for (let i = 0; i < canvas.width; i++) {
         let r = i / (canvas.width-1);
         let g = j / (canvas.height-1);
@@ -23,3 +24,5 @@ for (let j = 0; j < canvas.height; j++) {
         drawPixel(i, j, ir, ig, ib);
     }
 }
+
+console.log("Done.");
