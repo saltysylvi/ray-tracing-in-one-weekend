@@ -4,7 +4,19 @@ import {Ray} from './ray.js';
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+function hitSphere(center, radius, r) {
+    const oc = center.sub(r.origin);
+    const a = r.direction.lengthSquared();
+    const b = -2.0 * r.direction.dot(oc);
+    const c = oc.lengthSquared() - radius*radius;
+    const discriminant = b*b - 4*a*c;
+    return discriminant >= 0;
+}
+
 function rayColor(r) {
+    if (hitSphere(new Point3(0,0,-1), 0.5, r))
+        return new Color(1, 0, 0);
+
     const unitDirection = r.direction.normalize();
     const a = 0.5 * (unitDirection.y + 1); 
     return (new Color(1, 1, 1)).mul(1 - a).add((new Color(0.5, 0.7, 1)).mul(a));
