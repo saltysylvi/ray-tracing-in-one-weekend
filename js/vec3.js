@@ -1,5 +1,7 @@
 export {Vec3, Point3, Color, writeColor}
 
+import {Interval} from "./interval.js";
+
 class Vec3 {
 
     constructor(x, y, z) {
@@ -78,10 +80,14 @@ const Color = Vec3;
 
 // writes color to canvas with context ctx at pixel (x,y)
 function writeColor(color, ctx, x, y) {
-    const r = Math.floor(255.999 * color.x);
-    const g = Math.floor(255.999 * color.y);
-    const b = Math.floor(255.999 * color.z);
 
+    // Translate the [0,1] component values to the byte range [0,255].
+    const intensity = new Interval(0.000, 0.999);
+    const r = Math.floor(256 * intensity.clamp(color.x));
+    const g = Math.floor(256 * intensity.clamp(color.y));
+    const b = Math.floor(256 * intensity.clamp(color.z));
+
+    // Write out the pixel color components.
     ctx.fillStyle = `rgb(${r},${g},${b})`;
     ctx.fillRect(x, y, 1, 1);
 }

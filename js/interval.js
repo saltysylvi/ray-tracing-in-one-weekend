@@ -19,6 +19,12 @@ class Interval {
         return this.min < x && x < this.max;
     }
 
+    clamp(x) {
+        if (x < this.min) return this.min;
+        if (x > this.max) return this.max;
+        return x;
+    }
+
     static empty = new Interval(Infinity, -Infinity);
     static universe = new Interval(-Infinity, Infinity);
 

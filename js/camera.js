@@ -10,6 +10,7 @@ class Camera {
     constructor() {
         this.aspectRatio = 1.0;
         this.imageWidth = 100;
+        this.samplesPerPixel = 10;
     }
 
     render(world) {
@@ -23,12 +24,13 @@ class Camera {
         for (let j = 0; j < this.imageHeight; j++) {
             console.log(`Scanlines remaining: ${this.imageHeight-j}`);
             for (let i = 0; i < this.imageWidth; i++) {
-                const pixelCenter = this.pixel00Loc.add(this.pixelDeltaU.mul(i)).add(this.pixelDeltaV.mul(j));
-                const rayDirection = pixelCenter.sub(this.center);
-                const r = new Ray(this.center, rayDirection);
-        
-                const pixelColor = this.rayColor(r, world);
-                writeColor(pixelColor, ctx, i, j);
+                let pixelColor = new Color(0,0,0);
+                for (let sample = 0; sample < this.samplesPerPixel; sample++) {
+                    const r = this.getRay(i, j);
+                    pixelColor = pixelColor.add(this.rayColor(r, world));
+                }
+                
+                writeColor(pixelColor.mul(this.pixelSamplesScale), ctx, i, j);
             }
         }
         
@@ -37,6 +39,7 @@ class Camera {
 
     initialize() {
         this.imageHeight = Math.max(1, Math.floor(this.imageWidth / this.aspectRatio));
+        this.pixelSamplesScale = 1 / this.samplesPerPixel;
         this.center = new Point3(0, 0, 0);
 
         // Determine viewport dimensions.
@@ -55,6 +58,24 @@ class Camera {
         // Calculate the location of the upper left pixel.
         this.viewportUpperLeft = this.center.sub(new Vec3(0,0,this.focalLength)).sub(this.viewportU.div(2)).sub(this.viewportV.div(2));
         this.pixel00Loc = this.viewportUpperLeft.add(this.pixelDeltaU.add(this.pixelDeltaV).div(2));
+    }
+
+    getRay(i, j) {
+        // Construct a camera ray originating from the origin and directed at randomly
+        // sampled point around the pixel location i, j.
+
+        const offset = this.sampleSquare();
+        const pixelSample = this.pixel00Loc.add(this.pixelDeltaU.mul(i+offset.x)).add(this.pixelDeltaV.mul(j+offset.y));
+        
+        const rayOrigin = this.center;
+        const rayDirection = pixelSample.sub(rayOrigin);
+
+        return new Ray(rayOrigin, rayDirection);
+    }
+
+    sampleSquare() {
+        // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
+        return new Vec3(Math.random() - 0.5, Math.random() - 0.5, 0);
     }
 
     rayColor(r, world) {

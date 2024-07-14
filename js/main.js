@@ -9,4 +9,5 @@ world.add(new Sphere(new Point3(0, -100.5, -1), 100));
 const cam = new Camera();
 cam.aspectRatio = 16/9;
 cam.imageWidth = 400;
+cam.samplesPerPixel = 100;
 cam.render(world);
