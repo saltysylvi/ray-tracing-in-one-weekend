@@ -17,7 +17,7 @@ class HitRecord {
         // NOTE: the parameter `outwardNormal` is assumed to have unit length
 
         this.frontFace = r.direction.dot(outwardNormal) < 0;
-        this.normal = this.frontFace ? outwardNormal : -outwardNormal;
+        this.normal = this.frontFace ? outwardNormal : outwardNormal.neg();
     }
 
 }

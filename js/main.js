@@ -10,4 +10,6 @@ const cam = new Camera();
 cam.aspectRatio = 16/9;
 cam.imageWidth = 400;
 cam.samplesPerPixel = 100;
+cam.maxDepth = 50;
+
 cam.render(world);

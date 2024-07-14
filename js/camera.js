@@ -11,6 +11,7 @@ class Camera {
         this.aspectRatio = 1.0;
         this.imageWidth = 100;
         this.samplesPerPixel = 10;
+        this.maxDepth = 10;
     }
 
     render(world) {
@@ -27,7 +28,7 @@ class Camera {
                 let pixelColor = new Color(0,0,0);
                 for (let sample = 0; sample < this.samplesPerPixel; sample++) {
                     const r = this.getRay(i, j);
-                    pixelColor = pixelColor.add(this.rayColor(r, world));
+                    pixelColor = pixelColor.add(this.rayColor(r, this.maxDepth, world));
                 }
                 
                 writeColor(pixelColor.mul(this.pixelSamplesScale), ctx, i, j);
@@ -78,10 +79,14 @@ class Camera {
         return new Vec3(Math.random() - 0.5, Math.random() - 0.5, 0);
     }
 
-    rayColor(r, world) {
+    rayColor(r, depth, world) {
+        if (depth <= 0)
+            return new Color(0,0,0);
+
         const rec = new HitRecord();
-        if (world.hit(r, new Interval(0, Infinity), rec)) {
-            return rec.normal.add(1).div(2);
+        if (world.hit(r, new Interval(0.001, Infinity), rec)) {
+            const direction = rec.normal.add(Vec3.randomUnitVector());
+            return this.rayColor(new Ray(rec.p, direction), depth-1, world).div(2);
         }
     
         const unitDirection = r.direction.normalize();
