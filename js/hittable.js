@@ -1,5 +1,7 @@
 export {HitRecord, Sphere, HittableList}
 
+import {Interval} from './interval.js'
+
 // stores a point, a normal vector, a t (along ray) recording a hit, and a bool that's true if ray is outside the object
 class HitRecord {
 
@@ -27,7 +29,7 @@ class Sphere {
         this.radius = Math.max(0, radius);
     }
 
-    hit(r, tmin, tmax, rec) {
+    hit(r, tInterval, rec) {
         const oc = this.center.sub(r.origin);
         const a = r.direction.lengthSquared();
         const h = r.direction.dot(oc);
@@ -41,9 +43,9 @@ class Sphere {
 
         // Find the nearest root that lies in the acceptable range
         let root = (h - sqrtd) / a;
-        if (root <= tmin || tmax <= root) {
+        if (!tInterval.surrounds(root)) {
             root = (h + sqrtd) / a;
-            if (root <= tmin || tmax <= root)
+            if (!tInterval.surrounds(root))
                 return false;
         }
 
@@ -71,13 +73,13 @@ class HittableList {
         this.objects = [];
     }
 
-    hit(r, tmin, tmax, rec) {
+    hit(r, tInterval, rec) {
         const tempRec = new HitRecord();
         let hitAnything = false;
-        let closestSoFar = tmax;
+        let closestSoFar = tInterval.max;
         
         for (const object of this.objects) {
-            if (object.hit(r, tmin, closestSoFar, tempRec)) {
+            if (object.hit(r, new Interval(tInterval.min, closestSoFar), tempRec)) {
                 hitAnything = true;
                 closestSoFar = tempRec.t;
                 // overwrite rec's fields with tempRec's

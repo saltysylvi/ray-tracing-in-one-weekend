@@ -1,13 +1,14 @@
 import {Vec3, Point3, Color, writeColor} from './vec3.js';
 import {Ray} from './ray.js';
 import {HitRecord, Sphere, HittableList} from './hittable.js';
+import {Interval} from './interval.js';
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 function rayColor(r, world) {
     const rec = new HitRecord();
-    if (world.hit(r, 0, Infinity, rec)) {
+    if (world.hit(r, new Interval(0, Infinity), rec)) {
         return rec.normal.add(1).div(2);
     }
 
